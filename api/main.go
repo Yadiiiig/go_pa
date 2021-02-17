@@ -17,6 +17,16 @@ var (
 	db        *sqlx.DB
 )
 
+func getAgenda(w http.ResponseWriter, r *http.Request) {
+	selectedItems := []itemStruct{}
+	err := db.Select(&selectedItems, "SELECT * FROM agenda_items")
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(err)
+	}
+	json.NewEncoder(w).Encode(selectedItems)
+}
+
 func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addItemStruct
 	json.NewDecoder(r.Body).Decode(&bodyValues)
@@ -62,6 +72,7 @@ func main() {
 		panic(err)
 	}
 
+	router.HandleFunc("/get_items", authenticationCheck(getAgenda)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
@@ -70,4 +81,12 @@ type addItemStruct struct {
 	Name        string `db:"name" json:"name"`
 	Information string `db:"information" json:"info"`
 	Date        string `db:"due_date" json:"date"`
+}
+
+type itemStruct struct {
+	ID          int    `db:"id"`
+	Name        string `db:"name"`
+	Information string `db:"information"`
+	DueDate     string `db:"due_date"`
+	Done        bool   `db:"done"`
 }
