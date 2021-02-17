@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -20,23 +19,21 @@ var (
 
 func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addItemStruct
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		json.NewEncoder(w).Encode(err)
-	}
+	json.NewDecoder(r.Body).Decode(&bodyValues)
 
-	json.Unmarshal(body, &bodyValues)
 	parsedTime, err := time.Parse("02-01-2006", bodyValues.Date)
 	if err != nil {
+		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(err)
+		return
 	}
 
 	_, err = db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, parsedTime)
 	if err != nil {
+		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(err)
 	}
-
-	json.NewEncoder(w).Encode(200)
+	w.WriteHeader(204)
 }
 
 func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
@@ -46,9 +43,11 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 			if auth == authKey {
 				request(w, r)
 			} else {
+				w.WriteHeader(403)
 				json.NewEncoder(w).Encode("What are you trying to accomplish?")
 			}
 		} else {
+			w.WriteHeader(403)
 			json.NewEncoder(w).Encode("What are you trying to accomplish?")
 		}
 	})
