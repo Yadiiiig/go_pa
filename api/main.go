@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -15,6 +14,7 @@ var (
 	authKey   = "Willem"
 	dbDetails = "root@(localhost:5006)/gogenda?parseTime=true"
 	db        *sqlx.DB
+	format    = "02-01-2006"
 )
 
 func getAgenda(w http.ResponseWriter, r *http.Request) {
@@ -31,19 +31,48 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addItemStruct
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
-	parsedTime, err := time.Parse("02-01-2006", bodyValues.Date)
-	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(err)
-		return
-	}
-
-	_, err = db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, parsedTime)
+	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
 	if err != nil {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(err)
 	}
 	w.WriteHeader(204)
+}
+
+func getAgendaItems(w http.ResponseWriter, r *http.Request) {
+	selectedItems := []itemStruct{}
+	query := r.URL.Query()
+
+	switch {
+	case query.Get("after") != "" && query.Get("before") != "":
+		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date BETWEEN ? AND ?", query.Get("after"), query.Get("before"))
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(err)
+			return
+		}
+
+		json.NewEncoder(w).Encode(selectedItems)
+	case query.Get("date") != "":
+		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date = ?", query.Get("date"))
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(err)
+			return
+		}
+
+		json.NewEncoder(w).Encode(selectedItems)
+
+	default:
+		err := db.Select(&selectedItems, "SELECT * FROM agenda_items")
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(err)
+			return
+		}
+
+		json.NewEncoder(w).Encode(selectedItems)
+	}
 }
 
 func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
@@ -72,7 +101,7 @@ func main() {
 		panic(err)
 	}
 
-	router.HandleFunc("/get_items", authenticationCheck(getAgenda)).Methods("GET")
+	router.HandleFunc("/get_agenda_items", getAgendaItems)
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
