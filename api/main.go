@@ -42,6 +42,11 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(selectedItems) == 0 {
+			w.WriteHeader(204)
+			return
+		}
+
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("date") != "":
@@ -52,6 +57,11 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(selectedItems) == 0 {
+			w.WriteHeader(204)
+			return
+		}
+
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("id") != "":
@@ -59,6 +69,11 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(400)
 			json.NewEncoder(w).Encode(err)
+			return
+		}
+
+		if len(selectedItems) == 0 {
+			w.WriteHeader(204)
 			return
 		}
 
@@ -86,6 +101,7 @@ func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(err)
 	}
+
 	json.NewEncoder(w).Encode(bodyValues.ID)
 }
 
