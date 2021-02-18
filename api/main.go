@@ -22,10 +22,10 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
-	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(err)
+	if databaseError(w, err) {
+		return
 	}
+
 	w.WriteHeader(204)
 }
 
@@ -36,57 +36,38 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case query.Get("after") != "" && query.Get("before") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date BETWEEN ? AND ?", query.Get("after"), query.Get("before"))
-		if err != nil {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(err)
+		if databaseError(w, err) {
 			return
 		}
 
-		if len(selectedItems) == 0 {
-			w.WriteHeader(204)
-			return
-		}
-
+		checkEmpty(w, len(selectedItems))
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("date") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date = ?", query.Get("date"))
-		if err != nil {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(err)
+		if databaseError(w, err) {
 			return
 		}
 
-		if len(selectedItems) == 0 {
-			w.WriteHeader(204)
-			return
-		}
-
+		checkEmpty(w, len(selectedItems))
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("id") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE id = ?", query.Get("id"))
-		if err != nil {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(err)
+		if databaseError(w, err) {
 			return
 		}
 
-		if len(selectedItems) == 0 {
-			w.WriteHeader(204)
-			return
-		}
-
+		checkEmpty(w, len(selectedItems))
 		json.NewEncoder(w).Encode(selectedItems)
 
 	default:
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items")
-		if err != nil {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(err)
+		if databaseError(w, err) {
 			return
 		}
 
+		checkEmpty(w, len(selectedItems))
 		json.NewEncoder(w).Encode(selectedItems)
 
 	}
@@ -97,9 +78,8 @@ func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
-	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(err)
+	if databaseError(w, err) {
+		return
 	}
 
 	json.NewEncoder(w).Encode(bodyValues.ID)
@@ -136,6 +116,21 @@ func main() {
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
 	router.HandleFunc("/delete_agenda_item", authenticationCheck(deleteAgendaItem)).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", router))
+}
+
+func databaseError(w http.ResponseWriter, err error) bool {
+	if err != nil {
+		w.WriteHeader(404)
+		json.NewEncoder(w).Encode(err)
+		return true
+	}
+	return false
+}
+
+func checkEmpty(w http.ResponseWriter, length int) {
+	if length == 0 {
+		w.WriteHeader(204)
+	}
 }
 
 type addItemStruct struct {
