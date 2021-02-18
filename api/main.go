@@ -17,16 +17,6 @@ var (
 	format    = "02-01-2006"
 )
 
-func getAgenda(w http.ResponseWriter, r *http.Request) {
-	selectedItems := []itemStruct{}
-	err := db.Select(&selectedItems, "SELECT * FROM agenda_items")
-	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(err)
-	}
-	json.NewEncoder(w).Encode(selectedItems)
-}
-
 func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addItemStruct
 	json.NewDecoder(r.Body).Decode(&bodyValues)
@@ -53,8 +43,19 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		json.NewEncoder(w).Encode(selectedItems)
+
 	case query.Get("date") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date = ?", query.Get("date"))
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(err)
+			return
+		}
+
+		json.NewEncoder(w).Encode(selectedItems)
+
+	case query.Get("id") != "":
+		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE id = ?", query.Get("id"))
 		if err != nil {
 			w.WriteHeader(400)
 			json.NewEncoder(w).Encode(err)
@@ -72,7 +73,20 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		json.NewEncoder(w).Encode(selectedItems)
+
 	}
+}
+
+func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
+	var bodyValues deleteItemStruct
+	json.NewDecoder(r.Body).Decode(&bodyValues)
+
+	_, err := db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(err)
+	}
+	json.NewEncoder(w).Encode(bodyValues.ID)
 }
 
 func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
@@ -101,8 +115,10 @@ func main() {
 		panic(err)
 	}
 
-	router.HandleFunc("/get_agenda_items", getAgendaItems)
+	// Agenda routes
+	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
+	router.HandleFunc("/delete_agenda_item", authenticationCheck(deleteAgendaItem)).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
@@ -118,4 +134,8 @@ type itemStruct struct {
 	Information string `db:"information"`
 	DueDate     string `db:"due_date"`
 	Done        bool   `db:"done"`
+}
+
+type deleteItemStruct struct {
+	ID int `db:"id" json:"id"`
 }
