@@ -1,0 +1,12 @@
+# Getting
+127.0.0.1:8000/get_agenda_items?after=2021-02-19&before=2021-02-21
+127.0.0.1:8000/get_agenda_items?date=2021-02-19
+127.0.0.1:8000/get_agenda_items?id=15
+127.0.0.1:8000/get_agenda_items
+# Adding
+127.0.0.1:8000/add_agenda_items
+    {
+        "name": "test",
+        "info": "Take out the garbage",
+        "date": "2021-02-19"
+    }
