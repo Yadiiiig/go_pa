@@ -5,18 +5,6 @@ import (
 	"net/http"
 )
 
-func addAgendaItem(w http.ResponseWriter, r *http.Request) {
-	var bodyValues addItemStruct
-	json.NewDecoder(r.Body).Decode(&bodyValues)
-
-	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
-	if databaseError(w, err) {
-		return
-	}
-
-	w.WriteHeader(204)
-}
-
 func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 	selectedItems := []itemStruct{}
 	query := r.URL.Query()
@@ -59,6 +47,18 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(selectedItems)
 
 	}
+}
+
+func addAgendaItem(w http.ResponseWriter, r *http.Request) {
+	var bodyValues addItemStruct
+	json.NewDecoder(r.Body).Decode(&bodyValues)
+
+	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
+	if databaseError(w, err) {
+		return
+	}
+
+	w.WriteHeader(204)
 }
 
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
