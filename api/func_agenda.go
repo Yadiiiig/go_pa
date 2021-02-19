@@ -61,6 +61,7 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(204)
 }
 
+// Need to change to query params, no reason for a body
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues deleteItemStruct
 	json.NewDecoder(r.Body).Decode(&bodyValues)
