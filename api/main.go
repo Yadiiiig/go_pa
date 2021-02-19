@@ -29,5 +29,12 @@ func main() {
 	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
 	router.HandleFunc("/delete_agenda_item", authenticationCheck(deleteAgendaItem)).Methods("DELETE")
+
+	// Notes routes
+	router.HandleFunc("/get_notes", authenticationCheck(getNotes)).Methods("GET")
+	router.HandleFunc("/add_note", authenticationCheck(addNote)).Methods("POST")
+	router.HandleFunc("/update_note", authenticationCheck(updateNote)).Methods("PATCH")
+	router.HandleFunc("/delete_note", authenticationCheck(deleteNote)).Methods("DELETE")
+
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
