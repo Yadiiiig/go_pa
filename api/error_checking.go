@@ -27,6 +27,11 @@ func checkEmpty(w http.ResponseWriter, length int) {
 	}
 }
 
+func forbiddenAuth(w http.ResponseWriter) {
+	w.WriteHeader(403)
+	json.NewEncoder(w).Encode("What are you trying to accomplish?")
+}
+
 // func catchErrors(fn MyFancyFunc) http.HandlerFunc {
 // 	return funhttp.HandlerFunc(writer http.HandlerFunc, request *http.Request) {
 // 		if err := fn(writer, request); err != nil {
