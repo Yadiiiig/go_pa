@@ -15,7 +15,10 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
+
 		json.NewEncoder(w).Encode(selectedItems)
 
 	} else if query.Get("disabled") != "" {
@@ -24,7 +27,10 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
+
 		json.NewEncoder(w).Encode(selectedItems)
 	} else {
 		err := db.Select(&selectedItems, "SELECT * FROM note_items")
@@ -32,7 +38,10 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
+
 		json.NewEncoder(w).Encode(selectedItems)
 	}
 }
@@ -40,9 +49,12 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 // Could add the disabled state, but I see no usecase in the near future
 func addNote(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addNoteStruct
-	json.NewDecoder(r.Body).Decode(&bodyValues)
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
 
-	_, err := db.Query("INSERT INTO note_items (title, content) VALUES (?, ?)", bodyValues.Title, bodyValues.Content)
+	_, err = db.Query("INSERT INTO note_items (title, content) VALUES (?, ?)", bodyValues.Title, bodyValues.Content)
 	if databaseErrorRequest(w, err) {
 		return
 	}
@@ -52,9 +64,12 @@ func addNote(w http.ResponseWriter, r *http.Request) {
 
 func updateNote(w http.ResponseWriter, r *http.Request) {
 	var bodyValues noteStruct
-	json.NewDecoder(r.Body).Decode(&bodyValues)
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
 
-	_, err := db.Query("UPDATE note_items SET title = ?, content = ?, disabled = ? WHERE id = ?", bodyValues.Title, bodyValues.Content, bodyValues.Disabled, bodyValues.ID)
+	_, err = db.Query("UPDATE note_items SET title = ?, content = ?, disabled = ? WHERE id = ?", bodyValues.Title, bodyValues.Content, bodyValues.Disabled, bodyValues.ID)
 	if databaseErrorRequest(w, err) {
 		return
 	}

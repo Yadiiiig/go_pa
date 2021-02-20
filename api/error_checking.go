@@ -7,17 +7,28 @@ import (
 
 func databaseErrorRequest(w http.ResponseWriter, err error) bool {
 	if err != nil {
-		w.WriteHeader(404)
+		w.WriteHeader(500)
 		json.NewEncoder(w).Encode(err)
 		return true
 	}
 	return false
 }
 
-func checkEmpty(w http.ResponseWriter, length int) {
+func decoderError(w http.ResponseWriter, err error) bool {
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(err)
+		return true
+	}
+	return false
+}
+
+func checkEmpty(w http.ResponseWriter, length int) bool {
 	if length == 0 {
 		w.WriteHeader(204)
+		return true
 	}
+	return false
 }
 
 func forbiddenAuth(w http.ResponseWriter) {

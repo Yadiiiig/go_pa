@@ -16,7 +16,9 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("date") != "":
@@ -25,7 +27,9 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
 		json.NewEncoder(w).Encode(selectedItems)
 
 	case query.Get("id") != "":
@@ -34,7 +38,9 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
 		json.NewEncoder(w).Encode(selectedItems)
 
 	default:
@@ -43,7 +49,9 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		checkEmpty(w, len(selectedItems))
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
 		json.NewEncoder(w).Encode(selectedItems)
 
 	}
@@ -51,9 +59,12 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 
 func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues addItemStruct
-	json.NewDecoder(r.Body).Decode(&bodyValues)
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
 
-	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
+	_, err = db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
 	if databaseErrorRequest(w, err) {
 		return
 	}
@@ -64,9 +75,12 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 // Need to change to query params, no reason for a body
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	var bodyValues deleteItemStruct
-	json.NewDecoder(r.Body).Decode(&bodyValues)
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
 
-	_, err := db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
+	_, err = db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
 	if databaseErrorRequest(w, err) {
 		return
 	}

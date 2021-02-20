@@ -45,7 +45,7 @@ func nonAuthRequest(ip string) {
 			return
 		}
 	}
-	rows.Close()
+	defer rows.Close()
 
 	if returnedIP.IP == "" {
 		_, err := db.Query("INSERT INTO denylist (ip, tries, blocked) VALUES (?, 1, 0)", ip)
