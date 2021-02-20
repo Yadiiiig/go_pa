@@ -47,27 +47,20 @@ func nonAuthRequest(ip string) {
 	}
 	defer rows.Close()
 
+	var errDB error
 	if returnedIP.IP == "" {
-		_, err := db.Query("INSERT INTO denylist (ip, tries, blocked) VALUES (?, 1, 0)", ip)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		_, errDB = db.Query("INSERT INTO denylist (ip, tries, blocked) VALUES (?, 1, 0)", ip)
 	} else if returnedIP.Tries != 4 {
-		_, err := db.Query("UPDATE denylist SET tries = ? WHERE ip = ?", returnedIP.Tries+1, ip)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		_, errDB = db.Query("UPDATE denylist SET tries = ? WHERE ip = ?", returnedIP.Tries+1, ip)
 	} else {
-		_, err := db.Query("UPDATE denylist SET tries = ?, blocked = 1 WHERE ip = ?", returnedIP.Tries+1, ip)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		_, errDB = db.Query("UPDATE denylist SET tries = ?, blocked = 1 WHERE ip = ?", returnedIP.Tries+1, ip)
 		blocked = append(blocked, ip)
 	}
 
+	if errDB != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func initBlockedIPs() {
