@@ -28,6 +28,17 @@ CREATE TABLE IF NOT EXISTS `agenda_items` (
 
 -- Data exporteren was gedeselecteerd
 
+-- Structuur van  tabel gogenda.denylist wordt geschreven
+CREATE TABLE IF NOT EXISTS `denylist` (
+  `id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(50) NOT NULL,
+  `tries` tinyint(4) NOT NULL,
+  `blocked` tinyint(4) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
+
+-- Data exporteren was gedeselecteerd
+
 -- Structuur van  tabel gogenda.note_items wordt geschreven
 CREATE TABLE IF NOT EXISTS `note_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
