@@ -11,7 +11,8 @@ import (
 
 var (
 	authKey   = "Willem"
-	dbDetails = "root@(localhost:5006)/gogenda?parseTime=true"
+	// dbDetails = "root@(localhost:5006)/gogenda?parseTime=true" //for localhost connection
+	dbDetails = "root@(db:3306)/gogenda?parseTime=true" // db is name of docker container, 3006 is default port
 	db        *sqlx.DB
 	format    = "02-01-2006"
 	blocked   []string
