@@ -12,7 +12,7 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case query.Get("after") != "" && query.Get("before") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date BETWEEN ? AND ?", query.Get("after"), query.Get("before"))
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -21,7 +21,7 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 
 	case query.Get("date") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE due_date = ?", query.Get("date"))
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -30,7 +30,7 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 
 	case query.Get("id") != "":
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items WHERE id = ?", query.Get("id"))
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -39,7 +39,7 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		err := db.Select(&selectedItems, "SELECT * FROM agenda_items")
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -54,7 +54,7 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("INSERT INTO agenda_items (name, information, due_date) VALUES (?, ?, ?)", bodyValues.Name, bodyValues.Information, bodyValues.Date)
-	if databaseError(w, err) {
+	if databaseErrorRequest(w, err) {
 		return
 	}
 
@@ -67,7 +67,7 @@ func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
-	if databaseError(w, err) {
+	if databaseErrorRequest(w, err) {
 		return
 	}
 

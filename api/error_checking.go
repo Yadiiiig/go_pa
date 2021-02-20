@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func databaseError(w http.ResponseWriter, err error) bool {
+func databaseErrorRequest(w http.ResponseWriter, err error) bool {
 	if err != nil {
 		w.WriteHeader(404)
 		json.NewEncoder(w).Encode(err)

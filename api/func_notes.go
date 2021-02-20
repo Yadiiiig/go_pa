@@ -11,7 +11,7 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 
 	if query.Get("id") != "" {
 		err := db.Select(&selectedItems, "SELECT * FROM note_items WHERE id = ?", query.Get("id"))
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -20,7 +20,7 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 
 	} else if query.Get("disabled") != "" {
 		err := db.Select(&selectedItems, "SELECT * FROM note_items WHERE disabled = 1")
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -28,7 +28,7 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(selectedItems)
 	} else {
 		err := db.Select(&selectedItems, "SELECT * FROM note_items")
-		if databaseError(w, err) {
+		if databaseErrorRequest(w, err) {
 			return
 		}
 
@@ -43,7 +43,7 @@ func addNote(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("INSERT INTO note_items (title, content) VALUES (?, ?)", bodyValues.Title, bodyValues.Content)
-	if databaseError(w, err) {
+	if databaseErrorRequest(w, err) {
 		return
 	}
 
@@ -55,7 +55,7 @@ func updateNote(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&bodyValues)
 
 	_, err := db.Query("UPDATE note_items SET title = ?, content = ?, disabled = ? WHERE id = ?", bodyValues.Title, bodyValues.Content, bodyValues.Disabled, bodyValues.ID)
-	if databaseError(w, err) {
+	if databaseErrorRequest(w, err) {
 		return
 	}
 
@@ -71,7 +71,7 @@ func deleteNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, err := db.Query("DELETE FROM note_items WHERE id = ?", query.Get("id"))
-	if databaseError(w, err) {
+	if databaseErrorRequest(w, err) {
 		return
 	}
 
