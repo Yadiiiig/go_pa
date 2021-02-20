@@ -14,6 +14,13 @@ func databaseErrorRequest(w http.ResponseWriter, err error) bool {
 	return false
 }
 
+func databaseError(err error) bool {
+	if err != nil {
+		return true
+	}
+	return false
+}
+
 func checkEmpty(w http.ResponseWriter, length int) {
 	if length == 0 {
 		w.WriteHeader(204)
