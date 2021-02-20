@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -11,8 +10,7 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 		auth := r.Header.Get("Authorization")
 
 		if contains(r.RemoteAddr) {
-			w.WriteHeader(403)
-			json.NewEncoder(w).Encode("What are you trying to accomplish?")
+			forbiddenAuth(w)
 			return
 		}
 
@@ -21,12 +19,10 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 				request(w, r)
 			} else {
 				nonAuthRequest(r.RemoteAddr)
-				w.WriteHeader(403)
-				json.NewEncoder(w).Encode("What are you trying to accomplish?")
+				forbiddenAuth(w)
 			}
 		} else {
-			w.WriteHeader(403)
-			json.NewEncoder(w).Encode("What are you trying to accomplish?")
+			forbiddenAuth(w)
 		}
 	})
 }
