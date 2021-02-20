@@ -16,7 +16,6 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("still going")
 		if auth != "" {
 			if auth == authKey {
 				request(w, r)
