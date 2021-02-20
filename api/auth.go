@@ -9,6 +9,14 @@ import (
 func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
+
+		if contains(r.RemoteAddr) {
+			w.WriteHeader(403)
+			json.NewEncoder(w).Encode("What are you trying to accomplish?")
+			return
+		}
+
+		fmt.Println("still going")
 		if auth != "" {
 			if auth == authKey {
 				request(w, r)
@@ -25,7 +33,7 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 }
 
 func nonAuthRequest(ip string) {
-	returnedIP := selectedIP{}
+	returnedIP := selectedIPStruct{}
 
 	rows, err := db.Queryx("SELECT ip, tries, blocked FROM denylist WHERE ip = ?", ip)
 	if err != nil {
@@ -60,13 +68,40 @@ func nonAuthRequest(ip string) {
 			fmt.Println(err)
 			return
 		}
-		// Add code to add IP to map
+		blocked = append(blocked, ip)
 	}
 
 }
 
-type selectedIP struct {
+func initBlockedIPs() {
+	returnedIPS := []selectedIPSStruct{}
+	err := db.Select(&returnedIPS, "SELECT ip FROM denylist WHERE blocked = 1")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, ip := range returnedIPS {
+		blocked = append(blocked, ip.IP)
+	}
+}
+
+func contains(value string) bool {
+	for _, item := range blocked {
+		if item == value {
+			fmt.Println("blocked sucka")
+			return true
+		}
+	}
+	return false
+}
+
+type selectedIPStruct struct {
 	IP      string `db:"ip"`
 	Tries   int    `db:"tries"`
 	Blocked int    `db:"blocked"`
+}
+
+type selectedIPSStruct struct {
+	IP string `db:"ip"`
 }
