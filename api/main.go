@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -14,6 +15,7 @@ var (
 	dbDetails = "root@(localhost:5006)/gogenda?parseTime=true"
 	db        *sqlx.DB
 	format    = "02-01-2006"
+	blocked   []string
 )
 
 func main() {
@@ -25,6 +27,8 @@ func main() {
 		panic(err)
 	}
 
+	initBlockedIPs()
+	fmt.Println(blocked)
 	// Agenda routes
 	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
