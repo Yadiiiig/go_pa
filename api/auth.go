@@ -89,7 +89,6 @@ func initBlockedIPs() {
 func contains(value string) bool {
 	for _, item := range blocked {
 		if item == value {
-			fmt.Println("blocked sucka")
 			return true
 		}
 	}
