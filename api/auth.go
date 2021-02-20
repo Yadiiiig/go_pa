@@ -10,6 +10,7 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 		auth := r.Header.Get("Authorization")
 
 		if contains(r.RemoteAddr) {
+			fmt.Println("already blocked")
 			forbiddenAuth(w)
 			return
 		}
@@ -19,9 +20,11 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 				request(w, r)
 			} else {
 				nonAuthRequest(r.RemoteAddr)
+				fmt.Println("missmatch of key")
 				forbiddenAuth(w)
 			}
 		} else {
+			fmt.Println("no key available")
 			forbiddenAuth(w)
 		}
 	})
@@ -46,7 +49,7 @@ func nonAuthRequest(ip string) {
 	rows.Close()
 
 	if returnedIP.IP == "" {
-		_, err := db.Query("INSERT INTO denylist (ip, tries) VALUES (?, 1)", ip)
+		_, err := db.Query("INSERT INTO denylist (ip, tries, blocked) VALUES (?, 1, 0)", ip)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -84,6 +87,7 @@ func initBlockedIPs() {
 func contains(value string) bool {
 	for _, item := range blocked {
 		if item == value {
+			fmt.Println("blocked")
 			return true
 		}
 	}
