@@ -20,11 +20,10 @@ func authenticationCheck(request http.HandlerFunc) http.HandlerFunc {
 				request(w, r)
 			} else {
 				nonAuthRequest(r.RemoteAddr)
-				fmt.Println("missmatch of key")
 				forbiddenAuth(w)
 			}
 		} else {
-			fmt.Println("no key available")
+			nonAuthRequest(r.RemoteAddr)
 			forbiddenAuth(w)
 		}
 	})
