@@ -11,8 +11,8 @@ import (
 
 var (
 	authKey         = "Willem"
-	dbDetails       = "root@(localhost:5006)/gogenda?parseTime=true" //for localhost connection
-	dbDetailsDocker = "root@(db:3306)/gogenda?parseTime=true"        // db is name of docker container, 3006 is default port
+	dbDetails       = "root@(localhost:5006)/go_pa?parseTime=true" //for localhost connection
+	dbDetailsDocker = "root@(db:3306)/go_pa?parseTime=true"        // db is name of docker container, 3006 is default port
 	db              *sqlx.DB
 	format          = "02-01-2006"
 	blocked         []string
@@ -34,6 +34,7 @@ func main() {
 
 	initBlockedIPs()
 	runReminders()
+
 	// Agenda routes
 	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
