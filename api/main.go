@@ -47,7 +47,9 @@ func main() {
 
 	// Classes routes
 	router.HandleFunc("/get_classes", authenticationCheck(getClasses)).Methods("GET")
+	router.HandleFunc("/add_class", authenticationCheck(addClass)).Methods("POST")
 	router.HandleFunc("/update_class", authenticationCheck(updateClass)).Methods("PATCH")
+	router.HandleFunc("/delete_class", authenticationCheck(deleteClass)).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

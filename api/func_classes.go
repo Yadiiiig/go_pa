@@ -35,6 +35,21 @@ func getClasses(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func addClass(w http.ResponseWriter, r *http.Request) {
+	var bodyValues classesStruct
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
+
+	_, err = db.Query("INSERT INTO classes (name, teacher) VALUES (?, ?)", bodyValues.Name, bodyValues.Teacher)
+	if databaseErrorRequest(w, err) {
+		return
+	}
+
+	w.WriteHeader(204)
+}
+
 func updateClass(w http.ResponseWriter, r *http.Request) {
 	var bodyValues classesStruct
 	err := json.NewDecoder(r.Body).Decode(&bodyValues)
@@ -48,6 +63,21 @@ func updateClass(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(204)
+}
+
+func deleteClass(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	if query.Get("id") != "" {
+		_, err := db.Query("DELETE FROM classes WHERE id = ?", query.Get("id"))
+		if databaseErrorRequest(w, err) {
+			return
+		}
+
+		w.WriteHeader(204)
+	} else {
+		w.WriteHeader(400)
+	}
 }
 
 type classesStruct struct {
