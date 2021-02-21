@@ -10,19 +10,24 @@ import (
 )
 
 var (
-	authKey   = "Willem"
-	// dbDetails = "root@(localhost:5006)/gogenda?parseTime=true" //for localhost connection
-	dbDetails = "root@(db:3306)/gogenda?parseTime=true" // db is name of docker container, 3006 is default port
-	db        *sqlx.DB
-	format    = "02-01-2006"
-	blocked   []string
+	authKey         = "Willem"
+	dbDetails       = "root@(localhost:5006)/gogenda?parseTime=true" //for localhost connection
+	dbDetailsDocker = "root@(db:3306)/gogenda?parseTime=true"        // db is name of docker container, 3006 is default port
+	db              *sqlx.DB
+	format          = "02-01-2006"
+	blocked         []string
+	useDocker       = false
 )
 
 func main() {
 	var err error
 	router := mux.NewRouter().StrictSlash(true)
 
-	db, err = sqlx.Connect("mysql", dbDetails)
+	if useDocker {
+		db, err = sqlx.Connect("mysql", dbDetailsDocker)
+	} else {
+		db, err = sqlx.Connect("mysql", dbDetails)
+	}
 	if err != nil {
 		panic(err)
 	}
