@@ -33,7 +33,7 @@ func main() {
 	}
 
 	initBlockedIPs()
-
+	runReminders()
 	// Agenda routes
 	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
@@ -50,6 +50,7 @@ func main() {
 	router.HandleFunc("/add_class", authenticationCheck(addClass)).Methods("POST")
 	router.HandleFunc("/update_class", authenticationCheck(updateClass)).Methods("PATCH")
 	router.HandleFunc("/delete_class", authenticationCheck(deleteClass)).Methods("DELETE")
+	router.HandleFunc("/get_roster", authenticationCheck(getRoster)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

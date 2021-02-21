@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 )
 
 func getClasses(w http.ResponseWriter, r *http.Request) {
@@ -80,8 +82,45 @@ func deleteClass(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getRoster(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	selectedItems := []rosterStruct{}
+
+	if query.Get("day") != "" {
+		err := db.Select(&selectedItems, "SELECT * FROM classes WHERE id = ?", query.Get("id"))
+		if databaseErrorRequest(w, err) {
+			return
+		}
+
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
+		json.NewEncoder(w).Encode(selectedItems)
+	} else {
+		err := db.Select(&selectedItems, "SELECT class_hours.day, class_hours.hour, class_hours.location, classes.name, classes.teacher FROM class_hours INNER JOIN classes ON class_hours.class_id = classes.id")
+		// if databaseErrorRequest(w, err) {
+		// 	return
+		// }
+		if err != nil {
+			fmt.Println(err)
+		}
+		if checkEmpty(w, len(selectedItems)) {
+			return
+		}
+		json.NewEncoder(w).Encode(selectedItems)
+	}
+}
+
 type classesStruct struct {
 	ID      int    `db:"id" json:"id"`
 	Name    string `db:"name" json:"name"`
 	Teacher string `db:"teacher" json:"teacher"`
+}
+
+type rosterStruct struct {
+	Day      int       `db:"day" json:"day"`
+	Hour     time.Time `db:"hour" json:"hour"`
+	Location string    `db:"location" json:"location"`
+	Name     string    `db:"name" json:"name"`
+	Teacher  string    `db:"teacher" json:"teacher"`
 }
