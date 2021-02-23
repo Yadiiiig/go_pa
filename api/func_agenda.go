@@ -76,18 +76,18 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 
 // Need to change to query params, no reason for a body
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
-	var bodyValues deleteItemStruct
-	err := json.NewDecoder(r.Body).Decode(&bodyValues)
-	if decoderError(w, err) {
-		return
-	}
+	query := r.URL.Query()
 
-	_, err = db.Query("DELETE FROM agenda_items WHERE id = ?", bodyValues.ID)
-	if databaseErrorRequest(w, err) {
-		return
-	}
+	if query.Get("id") != "" {
+		_, err := db.Query("DELETE FROM agenda_items WHERE id = ?", query.Get("id"))
+		if databaseErrorRequest(w, err) {
+			return
+		}
 
-	json.NewEncoder(w).Encode(bodyValues.ID)
+		w.WriteHeader(204)
+	} else {
+		w.WriteHeader(400)
+	}
 }
 
 type addItemStruct struct {
