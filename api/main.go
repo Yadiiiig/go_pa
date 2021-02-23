@@ -38,6 +38,7 @@ func main() {
 	// Agenda routes
 	router.HandleFunc("/get_agenda_items", authenticationCheck(getAgendaItems)).Methods("GET")
 	router.HandleFunc("/add_agenda_items", authenticationCheck(addAgendaItem)).Methods("POST")
+	router.HandleFunc("/update_agenda_items", authenticationCheck(updateAgenda)).Methods("PATCH")
 	router.HandleFunc("/delete_agenda_item", authenticationCheck(deleteAgendaItem)).Methods("DELETE")
 
 	// Notes routes

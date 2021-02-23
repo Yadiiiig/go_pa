@@ -72,7 +72,20 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(204)
 }
 
-// Update agenda item
+func updateAgenda(w http.ResponseWriter, r *http.Request) {
+	var bodyValues itemStruct
+	err := json.NewDecoder(r.Body).Decode(&bodyValues)
+	if decoderError(w, err) {
+		return
+	}
+
+	_, err = db.Query("UPDATE agenda_items SET name = ?, information = ?, due_date = ?, done = ? WHERE id = ?", bodyValues.Name, bodyValues.Information, bodyValues.DueDate, bodyValues.Done, bodyValues.ID)
+	if databaseErrorRequest(w, err) {
+		return
+	}
+
+	w.WriteHeader(204)
+}
 
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
