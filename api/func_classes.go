@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -98,12 +97,10 @@ func getRoster(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(selectedItems)
 	} else {
 		err := db.Select(&selectedItems, "SELECT class_hours.day, class_hours.hour, class_hours.location, classes.name, classes.teacher FROM class_hours INNER JOIN classes ON class_hours.class_id = classes.id")
-		// if databaseErrorRequest(w, err) {
-		// 	return
-		// }
-		if err != nil {
-			fmt.Println(err)
+		if databaseErrorRequest(w, err) {
+			return
 		}
+
 		if checkEmpty(w, len(selectedItems)) {
 			return
 		}
