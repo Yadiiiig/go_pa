@@ -74,7 +74,6 @@ func addAgendaItem(w http.ResponseWriter, r *http.Request) {
 
 // Update agenda item
 
-// Need to change to query params, no reason for a body
 func deleteAgendaItem(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
