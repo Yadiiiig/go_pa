@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	token         = "3truutQfPlTnVVHkm9uo2HET"
-	authToken     = "xoxb-1809789588064-1785984541650-TlX0AWP0bOkcuIW9s6FOM2YQ"
+	token         = ""
+	authToken     = ""
 	authorization = "Willem"
 	url           = "http://127.0.0.1:8000/"
-	webhookURL    = "https://hooks.slack.com/services/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"
+	webhookURL    = ""
 	apiURL        = "https://slack.com/api/"
 )
 
