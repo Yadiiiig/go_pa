@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -15,7 +16,7 @@ func getAgendaItems(w http.ResponseWriter, r *http.Request) {
 		if databaseErrorRequest(w, err) {
 			return
 		}
-
+		fmt.Println(query.Get("after"))
 		if checkEmpty(w, len(selectedItems)) {
 			return
 		}

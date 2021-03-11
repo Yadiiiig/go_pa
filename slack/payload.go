@@ -1,29 +1,21 @@
 package main
 
+type modalPayload struct {
+	CallbackID string                 `json:"callback_id"`
+	State      map[string]interface{} `json:"state"`
+}
+
 type agendaBetweenPayload struct {
 	Values struct {
 		Dates struct {
 			After struct {
-				Type         string `json:"type"`
 				SelectedDate string `json:"selected_date"`
+				Type         string `json:"type"`
 			} `json:"after"`
 			Before struct {
-				Type         string `json:"type"`
-				SelectedDate string `json:"selected_date"`
+				SelectedDate interface{} `json:"selected_date"`
+				Type         string      `json:"type"`
 			} `json:"before"`
 		} `json:"dates"`
 	} `json:"values"`
-}
-
-type actionsStruct struct {
-	Type     string `json:"type"`
-	BlockID  string `json:"block_id"`
-	ActionID string `json:"action_id"`
-	Text     struct {
-		Type  string `json:"type"`
-		Text  string `json:"text"`
-		Emoji bool   `json:"emoji"`
-	} `json:"text"`
-	Value    string `json:"value"`
-	ActionTs string `json:"action_ts"`
 }

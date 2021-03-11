@@ -54,5 +54,5 @@ func main() {
 	router.HandleFunc("/delete_class", authenticationCheck(deleteClass)).Methods("DELETE")
 	router.HandleFunc("/get_roster", authenticationCheck(getRoster)).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(":3000", router))
+	log.Fatal(http.ListenAndServe(":8000", router))
 }
