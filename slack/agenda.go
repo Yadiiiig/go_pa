@@ -13,6 +13,13 @@ func getAgendaItems(triggerID string) {
 	}
 }
 
+func getCreateAgendaItem(triggerID string) {
+	err := sendSlackNotificationModal(webhookURL, addAgendaItemModal, triggerID)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func getAgendaBetween(payload interface{}, w http.ResponseWriter) {
 	bodyValues := []itemStruct{}
 
@@ -46,11 +53,23 @@ func getAgendaBetween(payload interface{}, w http.ResponseWriter) {
 	sendSlackNotificationText(webhookURL, returnMessage)
 }
 
-func getCreateAgendaItem(triggerID string) {
-	err := sendSlackNotificationModal(webhookURL, addAgendaItemModal, triggerID)
-	if err != nil {
+func addAgendaItem(payload interface{}, w http.ResponseWriter) {
+	payloadJSON := addAgendaItemPayload{}
+	test, _ := json.Marshal(payload)
+
+	if err := json.Unmarshal(test, &payloadJSON); err != nil {
 		fmt.Println(err)
+		w.WriteHeader(404)
+		return
 	}
+
+	postBody, _ := json.Marshal(addAgendaStruct{
+		Title:       payloadJSON.Values.Title.TitleInput.Value,
+		Information: payloadJSON.Values.Information.InformationInput.Value,
+		DueDate:     payloadJSON.Values.Date.DueDateInput.SelectedDate,
+	})
+
+	_ = postRequest("add_agenda_items", postBody)
 }
 
 type itemStruct struct {
@@ -59,4 +78,10 @@ type itemStruct struct {
 	Information string `db:"information"`
 	DueDate     string `db:"due_date"`
 	Done        bool   `db:"done"`
+}
+
+type addAgendaStruct struct {
+	Title       string `json:"name"`
+	Information string `json:"info"`
+	DueDate     string `json:"date"`
 }

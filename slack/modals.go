@@ -118,6 +118,7 @@ var addAgendaItemModal = `{
 		},
 		{
 			"type": "section",
+			"block_id": "date",
 			"text": {
 				"type": "mrkdwn",
 				"text": "Pick a due date."

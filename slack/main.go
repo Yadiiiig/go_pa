@@ -65,32 +65,12 @@ func slackHandlerSubmissions(w http.ResponseWriter, r *http.Request) {
 		case "get_agenda_item_between":
 			getAgendaBetween(payloadStruct.State, w)
 			w.WriteHeader(200)
+
 		case "add_agenda_item":
+			addAgendaItem(payloadStruct.State, w)
 			w.WriteHeader(200)
 		}
 
-		//fmt.Println(payloadStruct.State)
-
-		// switch {
-		// case action == "submit_agenda_between":
-		// 	getAgendaBetween(raw["state"], w)
-		// default:
-		// 	w.WriteHeader(404)
-		// }
-		// if r.FormValue("view") != "" {
-		// 	payload := []byte(r.FormValue("view"))
-		// 	payloadView := []modalReturnStruct{}
-
-		// 	if err := json.Unmarshal(payload, &payloadView); err != nil {
-		// 		fmt.Println(err)
-		// 		w.WriteHeader(404)
-		// 	}
-
-		// 	fmt.Println(payloadView[0].CallbackID)
-		// 	w.WriteHeader(200)
-		// } else {
-		// 	w.WriteHeader(404)
-		// }
 	} else {
 		w.WriteHeader(404)
 	}

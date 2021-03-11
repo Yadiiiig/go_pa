@@ -102,11 +102,5 @@ func sendSlackNotificationModal(webhookURL string, block string, triggerID strin
 		return err
 	}
 
-	// buf := new(bytes.Buffer)
-	// buf.ReadFrom(resp.Body)
-	// fmt.Println(buf.String())
-	// if buf.String() != "ok" {
-	// 	fmt.Println("Slack said no")
-	// }
 	return nil
 }
